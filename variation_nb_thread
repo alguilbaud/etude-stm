@@ -1,0 +1,8 @@
+#!/bin/bash
+for ((i = 1; i <= $1; i++)); do #variation du nb de threads
+	echo "semaphore $i :"
+	./produit_scalaire_semaphore_v2.exe $i $2
+	echo "stm $i :"
+	./produit_scalaire_stm.exe $i $2
+	echo ""
+done
