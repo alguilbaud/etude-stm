@@ -116,10 +116,20 @@ main(int argc, char * argv[])
 
 	long i;
 	long current_number;
+	
+	char output_file[50] = {'r','e','s','u','l','t','a','t','s','/','r','e','s','u','l','t','a','t','s','S','T','M','_'}; 
+	
+	char string_time[20];
+	char final_line[20];
 
 	FILE *fichier = fopen(argv[2],"r");
+	
+	strcat(output_file,argv[2]);
+	
+	FILE *output = fopen(output_file,"a");
+	
 	fscanf(fichier,"%ld", &taille_tab);
-
+	
 	U = malloc(sizeof(long) * taille_tab);
 	V = malloc(sizeof(long) * taille_tab);
 
@@ -148,6 +158,12 @@ main(int argc, char * argv[])
 	stm_init();
 	
 	nb_threads = atoi(argv[1]);
+	
+	if( nb_threads > NB_THREAD_MAX)
+	{
+		nb_threads = NB_THREAD_MAX;
+	}
+	
 	nb_boucles = atoi(argv[3]);
 
 	if (nb_threads > taille_tab)
@@ -181,7 +197,17 @@ main(int argc, char * argv[])
 	// fin du chronometre
 	temps_fin = give_time();
 
-	printf("Produit scalaire : %ld\n", final_sum);
-	printf("Temps d'exécution: %f\n", temps_fin - temps_debut);
+	sprintf(final_line,"%d",nb_threads);
+	
+	strcat(final_line,"\t");
+
+	sprintf(string_time,"%f",temps_fin - temps_debut);
+	
+	strcat(final_line,string_time);
+	
+	fprintf(output, "%s\n", final_line);
+	
+	fclose(output);
+	
 	return (EXIT_SUCCESS);
 }
