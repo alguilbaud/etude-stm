@@ -25,6 +25,7 @@ long *U;
 long *V;
 
 long nb_threads = 0;
+
 unsigned long nb_boucles = 0;
 
 void* calcul(void *id_thread)
@@ -76,25 +77,37 @@ void* calcul(void *id_thread)
     final_sum += part_sum;
     sem_post(&mutex);
         
-   	return NULL;
+   return NULL;
 }
 
 main(int argc, char * argv[])
 {
-	if(argc != 4){
+	if(argc != 4)
+	{
 		printf("Nombre de paramètres incorrects ! Entrez dans l'ordre :\n");
 		printf("- le nombre de threads à utiliser \n");
 		printf("- le nom du fichier contenant les valeurs à calculer \n");
 		printf("- le nombre de boucles à effectuer dans la section critique \n");
 		exit(0);
 	}
-
+		
 	long i;
 	long current_number;
 
+	char output_file[50] = {'r','e','s','u','l','t','a','t','s','/','r','e','s','u','l','t','a','t','s','S','E','M','_'}; 
+	
+	char string_time[20];
+	char final_line[20];
+
 	FILE *fichier = fopen(argv[2],"r");
+	
+	strcat(output_file,argv[2]);
+	
+	FILE *output = fopen(output_file,"a");
+	
 	fscanf(fichier,"%ld", &taille_tab);
 
+	
 	U = malloc(sizeof(long) * taille_tab);
 	V = malloc(sizeof(long) * taille_tab);
 
@@ -109,9 +122,9 @@ main(int argc, char * argv[])
 		fscanf(fichier,"%ld",&current_number);
 		V[i] = current_number;
 	}
-
+	
 	fclose(fichier);
-
+	
 	// variables utilisee pour calculer le temps d'execution
 	double temps_debut;
 	double temps_fin;
@@ -120,8 +133,13 @@ main(int argc, char * argv[])
 	pthread_t tab_thread[NB_THREAD_MAX];
 	
 	sem_init(&mutex, 0, 1);
-	
 	nb_threads = atoi(argv[1]);
+	
+	if( nb_threads > NB_THREAD_MAX)
+	{
+		nb_threads = NB_THREAD_MAX;
+	}
+	
 	nb_boucles = atoi(argv[3]);
 
 	if (nb_threads > taille_tab)
@@ -152,7 +170,17 @@ main(int argc, char * argv[])
 	// fin du chronometre
 	temps_fin = give_time();
 
-	printf("Produit scalaire : %ld\n", final_sum);
-	printf("Temps d'exécution: %f\n", temps_fin - temps_debut);
+	sprintf(final_line,"%d",nb_threads);
+	
+	strcat(final_line,"\t");
+
+	sprintf(string_time,"%f",temps_fin - temps_debut);
+	
+	strcat(final_line,string_time);
+	
+	fprintf(output, "%s\n", final_line);
+	
+	fclose(output);
+	
 	return (EXIT_SUCCESS);
 }
