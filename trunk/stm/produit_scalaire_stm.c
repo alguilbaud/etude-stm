@@ -1,4 +1,4 @@
-// Programme caculant le produit scalaire de 2 vecteurs en utilisant pthread et un semaphore
+// Programme caculant le produit scalaire de 2 vecteurs en utilisant pthread et la librairie tiny_stm
 
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -32,6 +32,7 @@ long *U;
 long *V;
 
 long nb_threads = 0;
+unsigned long nb_boucles = 0;
 
 void* calcul(void *id_thread)
 {
@@ -86,6 +87,9 @@ void* calcul(void *id_thread)
     //recuperation de la somme
     sum_stm = LOAD(&final_sum);
     
+    // boucle for vide pour pouvoir rallonger le temps passe en section critique
+    for(i=0 ; i<nb_boucles ; i++){} 
+    
     //modification de la somme en local
     sum_stm += part_sum;
     
@@ -100,8 +104,16 @@ void* calcul(void *id_thread)
    	return NULL;
 }
 
-main(int arc, char * argv[])
+main(int argc, char * argv[])
 {
+	if(argc != 4){
+		printf("Nombre de paramètres incorrects ! Entrez dans l'ordre :\n");
+		printf("- le nombre de threads à utiliser \n");
+		printf("- le nom du fichier contenant les valeurs à calculer \n");
+		printf("- le nombre de boucles à effectuer dans la section critique \n");
+		exit(0);
+	}
+
 	long i;
 	long current_number;
 
@@ -136,6 +148,7 @@ main(int arc, char * argv[])
 	stm_init();
 	
 	nb_threads = atoi(argv[1]);
+	nb_boucles = atoi(argv[3]);
 
 	if (nb_threads > taille_tab)
 		nb_threads = taille_tab;
