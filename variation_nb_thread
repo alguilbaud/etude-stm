@@ -2,7 +2,7 @@
 if [ ! -d "resultats" ]; then
 	mkdir resultats
 fi
-rm -rf "resultats/*"
+find resultats/ -type f -exec rm -f {} \;
 for ((i = 1; i <= $1; i++)); do #variation du nb de threads
 	./produit_scalaire_semaphore_v2.exe $i $2 $3
 	./produit_scalaire_stm.exe $i $2 $3
