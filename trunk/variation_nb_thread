@@ -7,3 +7,17 @@ for ((i = 1; i <= $1; i++)); do #variation du nb de threads
 	./produit_scalaire_semaphore_v2.exe $i $2 $3
 	./produit_scalaire_stm.exe $i $2 $3
 done
+
+for fichier in resultats/*  # Filename globbing.
+do
+  mv $fichier ${fichier/%.txt/.dat} # on renomme le fichier .txt en .dat
+done
+cd resultats
+arg2=$2
+nomSEM=resultatsSEM_${arg2/%.txt/.dat}
+nomSTM=resultatsSTM_${arg2/%.txt/.dat}
+gnuplot <<- EOF
+	set term png
+	set output "graphe.png"
+	plot "${nomSEM}" using 1:2 title 'semaphore' with lines, "${nomSTM}" using 1:2 title 'stm' with lines
+EOF
