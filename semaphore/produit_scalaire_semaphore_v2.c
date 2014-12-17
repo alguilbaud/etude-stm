@@ -6,6 +6,7 @@
 #include <semaphore.h> 
 #include <unistd.h> 
 #include <math.h>
+#include <string.h>
 #include "heure.h"
 
 // macro pour la taille maximale du tableau de thread ( 63 = 64 - le thread maitre (main)) 
@@ -26,7 +27,7 @@ long *V;
 
 long nb_threads = 0;
 
-unsigned long nb_boucles = 0;
+double duree_boucle = 0;
 
 void* calcul(void *id_thread)
 {
@@ -40,6 +41,8 @@ void* calcul(void *id_thread)
 	long part_sum = 0;
 	long index_min = 0;
 	long index_max = 0;
+	
+	double date_avantBoucle; // variable pour la boucle vide
 	
 	//calcul partiel servant a determiner index_min et index_max
 	long partial_calcul = (long) floor((float) (taille_tab/nb_threads));
@@ -72,8 +75,11 @@ void* calcul(void *id_thread)
 
 	// utilisation du semaphore pour acceder a final_sum
     sem_wait(&mutex); 
-    // boucle for vide pour pouvoir rallonger le temps passe en section critique
-    for(i=0 ; i<nb_boucles ; i++){} 
+    
+    date_avantBoucle=give_time();
+    // boucle while vide pour pouvoir rallonger le temps passe en section critique
+    while ( (give_time()-date_avantBoucle)<duree_boucle ){}
+    
     final_sum += part_sum;
     sem_post(&mutex);
         
@@ -87,7 +93,7 @@ main(int argc, char * argv[])
 		printf("Nombre de paramètres incorrects ! Entrez dans l'ordre :\n");
 		printf("- le nombre de threads à utiliser \n");
 		printf("- le nom du fichier contenant les valeurs à calculer \n");
-		printf("- le nombre de boucles à effectuer dans la section critique \n");
+		printf("- le temps en secondes à passer en section critique \n");
 		exit(0);
 	}
 		
@@ -140,7 +146,7 @@ main(int argc, char * argv[])
 		nb_threads = NB_THREAD_MAX;
 	}
 	
-	nb_boucles = atoi(argv[3]);
+	sscanf(argv[3],"%lf", &duree_boucle);
 
 	if (nb_threads > taille_tab)
 		nb_threads = taille_tab;
@@ -170,7 +176,7 @@ main(int argc, char * argv[])
 	// fin du chronometre
 	temps_fin = give_time();
 
-	sprintf(final_line,"%d",nb_threads);
+	sprintf(final_line,"%ld",nb_threads);
 	
 	strcat(final_line,"\t");
 
