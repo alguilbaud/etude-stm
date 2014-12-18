@@ -1,23 +1,35 @@
 #!/bin/bash
-if [ ! -d "resultats" ]; then
+if [ $# -ne 3 ]; then #verification du nombre de parametres en entree
+	echo "Nombre de paramètres incorrects ! Entrez dans l'ordre : "
+	echo "- le nombre de threads maximum à utiliser"
+	echo "- le nom du fichier contenant les valeurs à calculer"
+	echo "- le temps en secondes à passer en section critique"
+	exit 0
+fi
+if [ ! -d "resultats" ]; then #creation du repertoire "resultats" si il n'existe pas
 	mkdir resultats
 fi
-find resultats/ -type f -exec rm -f {} \;
-for ((i = 1; i <= $1; i++)); do #variation du nb de threads
+find resultats/*.dat -type f -exec rm -f {} \; #suppression du contenu des fichiers dans resultats pour ne pas ecrire a la suite des fichiers deja presents
+for ((i = 1; i <= $1; i++)); do #lancement de chaque programme avec une variation du nb de threads
+	echo "Lancement du programme semaphore avec $i threads et $3 sec..."
 	./produit_scalaire_semaphore_v2.exe $i $2 $3
+	#echo "... fait"
+	echo "Lancement du programme stm avec $i threads et $3 sec..."
 	./produit_scalaire_stm.exe $i $2 $3
+	#echo "... fait"
 done
 
-for fichier in resultats/*  # Filename globbing.
+for fichier in resultats/*.txt  # Filename globbing.pour renommer les resultats .txt en .dat
 do
-  mv $fichier ${fichier/%.txt/.dat} # on renomme le fichier .txt en .dat
+  mv $fichier ${fichier/%.txt/.dat}
 done
 cd resultats
-arg2=$2
+arg2=$2 # creation des graphiques en .png avec gnuplot
+nomFichier=${arg2%.txt}
 nomSEM=resultatsSEM_${arg2/%.txt/.dat}
 nomSTM=resultatsSTM_${arg2/%.txt/.dat}
 gnuplot <<- EOF
 	set term png
-	set output "graphe.png"
+	set output "graphe_$1threads_${nomFichier}_$3sec.png"
 	plot "${nomSEM}" using 1:2 title 'semaphore' with lines, "${nomSTM}" using 1:2 title 'stm' with lines
 EOF

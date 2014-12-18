@@ -24,7 +24,7 @@
 // barriere de démarrage pour tous les thread
 pthread_barrier_t barriere;
 
-// variable contenant le resultat final, protegee par le semaphore
+// variable contenant le resultat final, protegee par la stm
 long final_sum = 0;
 
 // vecteurs de valeurs codés en dur
@@ -195,11 +195,11 @@ main(int argc, char * argv[])
 	// destruction de la barriere apres destruction de tous les threads
 	pthread_barrier_destroy(&barriere);
 
-	//nettoyage de la STM
-	stm_exit();
-
 	// fin du chronometre
 	temps_fin = give_time();
+
+	//nettoyage de la STM
+	stm_exit();
 
 	sprintf(final_line,"%ld",nb_threads);
 	
