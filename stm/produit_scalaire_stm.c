@@ -24,8 +24,9 @@
 // barriere de démarrage pour tous les thread
 pthread_barrier_t barriere;
 
-// variable contenant le resultat final, protegee par la stm
+// variables contenant les resultats finaux, protegees par la stm
 long final_sum = 0;
+long final_sub = 0;
 
 // vecteurs de valeurs codés en dur
 long taille_tab;
@@ -49,6 +50,7 @@ void* calcul(void *id_thread)
 	long index_max = 0;
 	
 	long sum_stm;
+	long sub_stm;
 	
 	double date_avantBoucle; // variable pour la boucle vide
 	
@@ -89,16 +91,20 @@ void* calcul(void *id_thread)
     
     //recuperation de la somme
     sum_stm = LOAD(&final_sum);
+    //recuperation de la difference
+    sub_stm = LOAD(&final_sub);
     
     date_avantBoucle=give_time();
     
     // boucle while vide pour pouvoir rallonger le temps passe en section critique
     while ( (give_time()-date_avantBoucle)<duree_boucle ){}
     
-    //modification de la somme en local
+    //modification de la somme et de la difference en local
     sum_stm += part_sum;
+    sub_stm -= part_sum;
     
     STORE(&final_sum, sum_stm);
+    STORE(&final_sub, sub_stm);
     
     //vérification de la transaction
     COMMIT;

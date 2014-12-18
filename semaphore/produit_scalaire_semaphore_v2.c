@@ -17,8 +17,9 @@ pthread_barrier_t barriere;
 
 sem_t mutex;
 
-// variable contenant le resultat final, protegee par le semaphore
+// variables contenant les resultats finaux, protegees par le semaphore
 long final_sum = 0;
+long final_sub = 0;
 
 // vecteurs de valeurs codés en dur
 long taille_tab;
@@ -81,6 +82,7 @@ void* calcul(void *id_thread)
     while ( (give_time()-date_avantBoucle)<duree_boucle ){}
     
     final_sum += part_sum;
+    final_sub -= part_sum;
     sem_post(&mutex);
         
    return NULL;

@@ -31,5 +31,7 @@ nomSTM=resultatsSTM_${arg2/%.txt/.dat}
 gnuplot <<- EOF
 	set term png
 	set output "graphe_$1threads_${nomFichier}_$3sec.png"
+	set xlabel "Nombre de threads"
+	set ylabel "Temps (s)"
 	plot "${nomSEM}" using 1:2 title 'semaphore' with lines, "${nomSTM}" using 1:2 title 'stm' with lines
 EOF
