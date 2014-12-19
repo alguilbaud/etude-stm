@@ -9,12 +9,18 @@ fi
 if [ ! -d "resultats" ]; then #creation du repertoire "resultats" si il n'existe pas
 	mkdir resultats
 fi
-find resultats/*.dat -type f -exec rm -f {} \; #suppression du contenu des fichiers dans resultats pour ne pas ecrire a la suite des fichiers deja presents
+
+#suppression du contenu des fichiers dans resultats pour ne pas ecrire a la suite des fichiers deja presents
+touch resultats/temp.dat
+find resultats/*.dat -type f -exec rm -f {} \;
+touch resultats/temp.txt
+find resultats/*.txt -type f -exec rm -f {} \;
+
 for ((i = 1; i <= $1; i++)); do #lancement de chaque programme avec une variation du nb de threads
-	echo "Lancement du programme semaphore avec $i threads et $3 sec..."
+	#echo "Lancement du programme semaphore avec $i threads et $3 sec..."
 	./produit_scalaire_semaphore_v2.exe $i $2 $3
 	#echo "... fait"
-	echo "Lancement du programme stm avec $i threads et $3 sec..."
+	#echo "Lancement du programme stm avec $i threads et $3 sec..."
 	./produit_scalaire_stm.exe $i $2 $3
 	#echo "... fait"
 done
