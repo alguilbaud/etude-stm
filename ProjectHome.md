@@ -1,0 +1,1 @@
+Étude d'un système alternatif aux sémaphores pour la gestion des variables partagées sous linux temps réel multiprocesseur.
